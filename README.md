@@ -23,6 +23,7 @@ Now create a free developer account with Slack API.
 Create a new app: 
 
 Slack step 1
+![Screenshot](Slackstep1.jpg)
 
 
 Choose the features and functionality of the app. You will need to select Incoming Webhooks, Bots, Event Subscriptions, and Permissions at the minimum.
