@@ -1,18 +1,25 @@
+//File name: ProBot.json
+//Information: Hosted in Heroku
+//Version: 1.3 
+//Date: 28-aug-2020
 const express = require('express');
 const bodyParser = require('body-parser');
 const request = require("request");
 const app = express();// The port used for Express server
 const port = process.env.PORT || 5000;
-//const { App } = require('@slack/bolt');
 const { WebClient } = require('@slack/web-api');
 
 var schedule = require('node-schedule');
+
+// Global Variables
 hoursS='';
+desc_reminder='';
+
 
 
 const {createMessageAdapter} = require('@slack/interactive-messages');
-const slackInteractions = createMessageAdapter(process.env.SLACK_SIGNING_SECRET);
 
+const slackInteractions = createMessageAdapter(process.env.SLACK_SIGNING_SECRET);
 const token = process.env.SLACK_MYAPP_TOKEN;
 
 const web = new WebClient(token);
@@ -26,45 +33,31 @@ app.use('/slack/actions', slackInteractions.expressMiddleware());
 
 // Reminder Modal Submission using interactive adapter
 slackInteractions.viewSubmission('Reminder_modal_submit' , async (payload) => {
-      //global.hoursS=0;
 	  const blockData = payload.view.state;
-    //console.log(blockData);
-      const dateselectedvalue = blockData.values.date_selection_block.date_selection_element.selected_date;
 	  const timepicker = blockData.values.time_selection_block.time_selection_element.selected_option.text.text;
-	  
-	  //const cuteAnimalSelection = blockData.values.cute_animal_selection_block.cute_animal_selection_element.selected_option.value
-      //const nameInput = blockData.values.cute_animal_name_block.cute_animal_name_element.value
-    const desc_reminder = blockData.values.description_selection_block.description_element.value;
-      console.log(timepicker);
-	  console.log(dateselectedvalue);
-	 hoursS= `${timepicker}`.replace(/[\:00\']+/g,'');
-	  console.log(hoursS);
-    
+
+    desc_reminder = blockData.values.description_selection_block.description_element.value;
+	hoursS= `${timepicker}`.replace(/[\:00\']+/g,'');
+	
       try {
 		await web.chat.postMessage({
 		channel: '#welcome',
-		text: `:thumbsup:I will remind you " ${desc_reminder}" at ${timepicker}, ${dateselectedvalue} !!`	
+		text: `:thumbsup:I will remind you " ${desc_reminder}" at ${timepicker} !!`	
 	  });
 		reminderpro();
 		} catch (e){
 console.log(e);
 } 
-
 	  return ''
-	  //return hoursS;
-    
-  });
+ });
 
-	  //console.log(hoursS);
-
-
+	 
 function reminderpro() {
   const params = {
 }
-//console.log(hoursS);
 var rule = new schedule.RecurrenceRule();
 rule.second = 0;
-rule.minute = 15;
+rule.minute = 0;
 rule.hour = hoursS;
 
 //rule.date = 11;
@@ -83,8 +76,11 @@ var j1 = schedule.scheduleJob(rule, function(){
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "###Reminder Title###"
+				"text": "*<###Reminder from ProBot###>*"
 			}
+		},
+		{
+			"type": "divider"
 		},
 		{
 			"type": "divider"
@@ -93,7 +89,7 @@ var j1 = schedule.scheduleJob(rule, function(){
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "*Reminder for:*\n######Reminder Discription#####\n*When:*\nAug 10-Aug 13"
+				"text": ` Reminder : ${desc_reminder}`
 			},
 			"accessory": {
 				"type": "image",
@@ -105,33 +101,9 @@ var j1 = schedule.scheduleJob(rule, function(){
 			"type": "divider"
 		},
 		{
-			"type": "actions",
-			"elements": [
-				{
-					"type": "button",
-					"text": {
-						"type": "plain_text",
-						"text": "Mark as Complete",
-						"emoji": true
-					},
-					"value": "click_me_123"
-				}
-			]
-		},
-		{
-			"type": "actions",
-			"elements": [
-				{
-					"type": "button",
-					"text": {
-						"type": "plain_text",
-						"text": "Delete",
-						"emoji": true
-					},
-					"value": "click_me_123"
-				}
-			]
+			"type": "divider"
 		}
+		
 	]
 
 });
@@ -142,17 +114,13 @@ var j1 = schedule.scheduleJob(rule, function(){
 // Announcement Modal Submission using interactive adapter
 slackInteractions.viewSubmission('Announcement_modal_submit' , async (payload) => {
       const blockData = payload.view.state;
-    //console.log(blockData);
       var channelselectedvalue = blockData.values.Channels_selection_block.channels.selected_channels;
 	   //supparate square brackets using regexp
 	  //var WithOutBrackets="[test]".replace(/[\[\]']+/g,'');
 	  var channel=`${channelselectedvalue}`.replace(/[\[\]']+/g,'');
 	  		
     const message = blockData.values.Message_block.description_element.value;
-      //console.log(channelselectedvalue);
-	  
-	  //console.log(message);
-    //console.log(hoursS);
+      
       try {
 		await web.chat.postMessage({
 		channel: channel,
@@ -169,18 +137,13 @@ console.log(e);
 // To-Do-Task Modal Submission using interactive adapter
 slackInteractions.viewSubmission('ToDoTask_modal_submit' , async (payload) => {
       const blockData = payload.view.state;
-    //console.log(blockData);
       var userselectedvalue = blockData.values.users_selection_block.users.selected_users;
 	   //supparate square brackets using regexp
 	  //var WithOutBrackets="[test]".replace(/[\[\]']+/g,'');
 	  var users=`${userselectedvalue}`.replace(/[\[\]']+/g,'');
 	  		
     const message = blockData.values.Taskdesc_selection_block.description_element.value;
-      console.log(userselectedvalue);
-	  console.log(users);
-	  
-	  console.log(message);
-    
+          
       try {
 		await web.chat.postMessage({
 		channel: users,
@@ -204,8 +167,6 @@ app.use(bodyParser.json());
       console.log('ProBot is listening on port ' + port);
     });
 	
-
-
 slackEvents.on('app_mention', async (event) => {
       try {
 	await web.chat.postMessage({
@@ -535,93 +496,16 @@ const modalRemindertestBlock = {
 
 //Slash command: '/remindpro'
 app.post('/remindpro', (req, res) => {
-	//console.log('payload from slash command enter', payload);
-	console.log('*Reminder Modal Launched*......');
-	//console.log('***view id****', req.view.id);
 	
+	console.log('*Reminder Modal Launching*........');
 	
-		   web.views.open({
+	web.views.open({
            trigger_id: req.body.trigger_id,
           view: modalRemindertestBlock
 						});
-						
-//(async () => {
-
-   //const result = await web.views.open({
-	  // trigger_id: req.body.trigger_id,
-         //   view: modalRemindertestBlock
-						//});
-		////console.log(`Successfully opened root view ${result.view.id}`);
-		//const vid = result.view.id;
-		//console.log('again vid', vid);
 		
-		//const result1 = await web.views.update({
-			//view_id: vid,
-			//view: modalRemindertestBlock
-      
-  
-		//});
-//})();
-	   
-	   //console.log('vid is', vid);
-							
-//res.json();
 res.send();
 });
-
-
-
-//@@@@@@@@@@@@@reminder test code
-
-// var date = new Date(year,month,date,hour,min,sec)
-
-
-var j = schedule.scheduleJob('*/5 * * * *', function(){
-  console.log('This message will display every 5 minites, Current time is :' + new Date());
-});
-
-var rule = new schedule.RecurrenceRule();
-rule.second = 0;
-rule.minute = 59;
-rule.hour = 20;
-//rule.date = 14;
-//rule.month = 07;
-//rule.year = 2020;
- 
-var j1 = schedule.scheduleJob(rule, function(){
-  console.log('This is time, i have confired time , and current time is '+ new Date());
-  
-  web.chat.postMessage({
-      channel: '#welcome',
-      text: `Hi, Welcome to my World`,
-      blocks:[
-	     
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "###Reminder Title###"
-			}
-		},
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "*Reminder for:*\n######Reminder Discription#####\n*When:*\nAug 10-Aug 13"
-			},
-			"accessory": {
-				"type": "image",
-				"image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRlIERozfshCjDEs8u9U5PLqKtj_hJPk1aZnQ&usqp=CAU",
-				"alt_text": "Reminder thumbnail"
-			}
-		}
-	]
-
-});
-  });
-
-
-
 
 //Slash command: '/inforoom'
 app.post('/inforoom', (req, res) => {
