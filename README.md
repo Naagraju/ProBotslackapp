@@ -4,12 +4,12 @@ Setup
 Clone the repository
 
 
-Built With
+# Built With
 Node.js - Runtime environment
 Express.js - Node.js web application framework
 Heroku - Web hosting platform
 
-Installation:
+# Installation:
 Clone this repository using Git:
 
 git clone : https://github.com/Naagraju/ProBotslackapp.git
@@ -21,9 +21,8 @@ npm install
 Now create a free developer account with Slack API.
 
 Create a new app: 
-Create a new app:
 
-Screenshot of Slack step 1
+Slack step 1
 
 
 Choose the features and functionality of the app. You will need to select Incoming Webhooks, Bots, Event Subscriptions, and Permissions at the minimum.
